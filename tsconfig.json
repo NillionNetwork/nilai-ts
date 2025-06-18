@@ -1,21 +1,32 @@
 {
-    "compilerOptions": {
-      "target": "ES2020",
-      "module": "ESNext",
-      "lib": ["ES2020"],
-      "declaration": true,
-      "outDir": "./dist",
-      "rootDir": "./src",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "moduleResolution": "bundler",
-      "resolveJsonModule": true,
-      "allowSyntheticDefaultImports": true,
-      "allowImportingTsExtensions": false,
-      "noEmit": false
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist", "**/*.test.ts"]
-  }
+  "$schema": "https://json.schemastore.org/tsconfig",
+
+  "compilerOptions": {
+    "noEmit": true,
+
+    // language and module features
+    "lib": ["es2022"],
+    "module": "es2022",
+    "target": "es2022",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    // type checking
+    "skipLibCheck": true,
+    "strict": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "isolatedModules": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "#/*": ["src/*"]
+    }
+  },
+  "include": ["./src/**/*.ts", "./tests/**/*.ts"]
+}

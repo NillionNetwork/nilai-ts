@@ -1,6 +1,6 @@
-import { OpenAI, ClientOptions } from 'openai';
+import { OpenAI, type ClientOptions } from "openai";
 import {
-  NucTokenEnvelope,
+  type NucTokenEnvelope,
   NucTokenBuilder,
   NilauthClient,
   PayerBuilder,
@@ -8,25 +8,25 @@ import {
   Did,
   InvocationBody,
   NucTokenEnvelopeSchema,
-} from '@nillion/nuc';
+} from "@nillion/nuc";
 
 import {
   AuthType,
   NilAuthInstance,
-  DelegationTokenRequest,
-  DelegationTokenResponse,
-  NilaiClientOptions,
-  NilAuthPublicKey,
+  type DelegationTokenRequest,
+  type DelegationTokenResponse,
+  type NilaiClientOptions,
+  type NilAuthPublicKey,
   RequestType,
-} from './types';
+} from "./types";
 
-import { isExpired } from './utils';
+import { isExpired } from "./utils";
 
-export interface NilaiOpenAIClientOptions extends NilaiClientOptions, ClientOptions {
-  auth_type?: AuthType;
-  nilauth_instance?: NilAuthInstance;
-  api_key?: string;
-  base_url?: string;
+export interface NilaiOpenAIClientOptions
+  extends NilaiClientOptions,
+    ClientOptions {
+  authType?: AuthType;
+  nilauthInstance?: NilAuthInstance;
 }
 export class NilaiOpenAIClient extends OpenAI {
   private authType: AuthType = AuthType.API_KEY;
@@ -36,49 +36,43 @@ export class NilaiOpenAIClient extends OpenAI {
   private delegationToken: NucTokenEnvelope | null = null;
   private nilaiPublicKey: NilAuthPublicKey | null = null;
 
-  constructor(options: NilaiOpenAIClientOptions = {
-    auth_type: AuthType.API_KEY,
-    nilauth_instance: NilAuthInstance.SANDBOX,
-    api_key: '',
-    base_url: '',
-  }) {
-
-
+  constructor(
+    options: NilaiOpenAIClientOptions = {
+      authType: AuthType.API_KEY,
+      nilauthInstance: NilAuthInstance.SANDBOX,
+      apiKey: "",
+      baseURL: "",
+    },
+  ) {
     const {
-      auth_type = AuthType.API_KEY,
-      nilauth_instance = NilAuthInstance.SANDBOX,
-      nilauth_url,
-      api_key,
+      authType = AuthType.API_KEY,
+      nilauthInstance = NilAuthInstance.SANDBOX,
+      apiKey,
       ...openAIOptions
     } = options;
-    
 
     // Set up authentication
-    const processedOptions = { ...openAIOptions };
-    super(processedOptions);
-
-    switch (auth_type) {
+    const processedOptions = { apiKey: apiKey, ...openAIOptions };
+    switch (authType) {
       case AuthType.API_KEY:
-        if (!api_key) {
-          throw new Error('In API key mode, api_key is required');
+        if (!apiKey) {
+          throw new Error("In API key mode, apiKey is required");
         }
-        processedOptions.apiKey = '<placeholder>'; // Placeholder to avoid using it in super call
-        
-      
-
         break;
       case AuthType.DELEGATION_TOKEN:
-        processedOptions.apiKey = '<placeholder>';
+        processedOptions.apiKey = "<placeholder>";
         break;
       default:
-        throw new Error(`Invalid auth type: ${auth_type}`);
+        throw new Error(`Invalid auth type: ${authType}`);
     }
 
+    // Set up the client
+    super(processedOptions);
 
-    this.authType = auth_type;
-    this.nilAuthInstance = nilauth_instance;
+    this.authType = authType;
+    this.nilAuthInstance = nilauthInstance;
 
-    this._initializeAuth(api_key);
+    this._initializeAuth(apiKey);
   }
 
   private _initializeAuth(api_key?: string): void {
@@ -93,7 +87,13 @@ export class NilaiOpenAIClient extends OpenAI {
   }
 
   private _apiKeyInit(api_key: string): void {
-    this.nilAuthPrivateKey = Keypair.from(api_key);
+    try {
+      this.nilAuthPrivateKey = Keypair.from(api_key);
+    } catch (error) {
+      throw new Error(
+        `Failed to initialize API key. Format provided is not a valid secp256k1 private key: ${error}`,
+      );
+    }
   }
 
   private _delegationTokenInit(): void {
@@ -107,9 +107,9 @@ export class NilaiOpenAIClient extends OpenAI {
     }
 
     try {
-      const response = await fetch(`${this.baseURL}/public_key`);
+      const response = await fetch(`${this.baseURL}public_key`);
       const publicKeyData = await response.text();
-      this.nilaiPublicKey = Buffer.from(publicKeyData, 'base64');
+      this.nilaiPublicKey = Buffer.from(publicKeyData, "base64");
       return this.nilaiPublicKey;
     } catch (error) {
       throw new Error(`Failed to retrieve the nilai public key: ${error}`);
@@ -118,22 +118,23 @@ export class NilaiOpenAIClient extends OpenAI {
 
   private async _getRootToken(): Promise<NucTokenEnvelope> {
     if (this.authType !== AuthType.API_KEY) {
-      throw new Error('Root token is only available in API key mode');
+      throw new Error("Root token is only available in API key mode");
     }
     if (!this.nilAuthPrivateKey) {
-      throw new Error('NilAuthPrivateKey not set. Call _initializeAuth first.');
+      throw new Error("NilAuthPrivateKey not set. Call _initializeAuth first.");
     }
 
-    
     if (!this._rootTokenEnvelope || isExpired(this._rootTokenEnvelope)) {
-          
       const nilauthClient = await NilauthClient.from(
         this.nilAuthInstance,
-        await new PayerBuilder().build()
-      );  
+        await new PayerBuilder()
+          .chainUrl("https://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz")
+          .keypair(this.nilAuthPrivateKey)
+          .build(),
+      );
       const rootTokenResponse = await nilauthClient.requestToken(
         this.nilAuthPrivateKey,
-        "nilai"
+        "nilai",
       );
       this._rootTokenEnvelope = rootTokenResponse.token;
     }
@@ -143,18 +144,24 @@ export class NilaiOpenAIClient extends OpenAI {
 
   getDelegationRequest(): DelegationTokenRequest {
     if (!this.nilAuthPrivateKey) {
-      throw new Error('NilAuthPrivateKey not set. Call _initializeAuth first.');
+      throw new Error("NilAuthPrivateKey not set. Call _initializeAuth first.");
     }
+
     return {
       type: RequestType.DELEGATION_TOKEN_REQUEST,
-      public_key: this.nilAuthPrivateKey.publicKey('hex'),
+      public_key: this.nilAuthPrivateKey.publicKey("hex"),
     };
   }
 
   updateDelegation(delegationTokenResponse: DelegationTokenResponse): void {
-    this.delegationToken = NucTokenEnvelopeSchema.parse(
-      delegationTokenResponse.delegation_token
-    );
+    try {
+      this.delegationToken = NucTokenEnvelopeSchema.parse(
+        delegationTokenResponse.delegation_token,
+      );
+    } catch (error) {
+      console.error("Failed to update delegation token:", error);
+      throw error;
+    }
   }
 
   private async _getInvocationToken(): Promise<string> {
@@ -164,66 +171,82 @@ export class NilaiOpenAIClient extends OpenAI {
       case AuthType.DELEGATION_TOKEN:
         return this._getInvocationTokenWithDelegation();
       default:
-        throw new Error('Invalid auth type');
+        throw new Error("Invalid auth type");
     }
   }
 
   private async _getInvocationTokenWithDelegation(): Promise<string> {
     if (this.authType !== AuthType.DELEGATION_TOKEN) {
       throw new Error(
-        'Invocation token is only available through delegation token mode'
+        "Invocation token is only available through delegation token mode",
       );
     }
     if (!this.nilAuthPrivateKey) {
-      throw new Error('NilAuthPrivateKey not set. Call _initializeAuth first.');
+      throw new Error("NilAuthPrivateKey not set. Call _initializeAuth first.");
     }
     if (!this.delegationToken) {
-      throw new Error('Delegation token not set. Call updateDelegation first.');
+      throw new Error("Delegation token not set. Call updateDelegation first.");
+    }
+    if (!this.nilAuthPrivateKey) {
+      throw new Error("NilAuthPrivateKey not set. Call _initializeAuth first.");
     }
 
+    if (isExpired(this.delegationToken)) {
+      throw new Error(
+        "Delegation token is expired. Call updateDelegation first.",
+      );
+    }
     const nilaiPublicKey = await this._getNilaiPublicKey();
-    
-    const invocationToken = NucTokenBuilder
-      .extending(this.delegationToken)
+
+    const invocationToken = NucTokenBuilder.extending(this.delegationToken)
       .body(new InvocationBody({}))
       .audience(new Did(nilaiPublicKey))
       .build(this.nilAuthPrivateKey.privateKey());
-
     return invocationToken;
   }
 
   private async _getInvocationTokenWithApiKey(): Promise<string> {
     if (this.authType !== AuthType.API_KEY) {
       throw new Error(
-        'Invocation token is only available through API key mode'
+        "Invocation token is only available through API key mode",
       );
+    }
+    if (!this.nilAuthPrivateKey) {
+      throw new Error("NilAuthPrivateKey not set. Call _initializeAuth first.");
     }
 
     const rootToken = await this._getRootToken();
     const nilaiPublicKey = await this._getNilaiPublicKey();
 
-    const invocationToken = NucTokenBuilder
-      .extending(rootToken)
+    const invocationToken = NucTokenBuilder.extending(rootToken)
       .body(new InvocationBody({}))
       .audience(new Did(nilaiPublicKey))
-      .build(this.nilAuthPrivateKey!.privateKey());
+      .build(this.nilAuthPrivateKey.privateKey());
 
     return invocationToken;
   }
-
   /**
    * Used as a callback for mutating the given `RequestInit` object.
    *
    * This is useful for cases where you want to add certain headers based off of
    * the request properties, e.g. `method` or `url`.
    */
-  protected async prepareRequest(
+  protected override async prepareRequest(
     request: any, // any should be RequestInit but it is internal to openai
     { url, options }: { url: string; options: any }, // any should be FinalRequestOptions but it is internal to openai
   ): Promise<void> {
     await super.prepareRequest(request, { url, options });
-    const invocationToken = await this._getInvocationToken();
-    options.headers.Authorization = `Bearer ${invocationToken}`;
   }
-
+  /**
+   * Used as a callback for mutating the given `FinalRequestOptions` object.
+   */
+  protected override async prepareOptions(options: any): Promise<void> {
+    await super.prepareOptions(options);
+    const invocationToken = await this._getInvocationToken();
+    options.headers = {
+      ...options.headers,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${invocationToken}`,
+    };
+  }
 }

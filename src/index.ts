@@ -1,6 +1,5 @@
-export { NilaiOpenAIClient } from './client';
+export { NilaiOpenAIClient } from "./client";
 //export { DelegationTokenServer } from './server';
-export { CustomOpenAI } from './internal/new_client';
 export {
   AuthType,
   NilAuthInstance,
@@ -11,5 +10,5 @@ export {
   type NilaiClientOptions,
   type InvocationArgs,
   DefaultDelegationTokenServerConfig,
-} from './types';
-export { isExpired, hexToBytes, bytesToHex } from './utils';
+} from "./types";
+export { isExpired, hexToBytes, bytesToHex } from "./utils";
