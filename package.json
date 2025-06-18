@@ -1,0 +1,51 @@
+{
+  "name": "@nillion/nilai-ts",
+  "version": "0.0.0-alpha.0",
+  "description": "Nilai Typescript SDK",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [
+    "openai",
+    "nilauth",
+    "delegation-token",
+    "authentication"
+  ],
+  "author": "José Cabrero-Holgueras <jose.cabrero@nillion.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NillionNetwork/nilai-ts.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "packageManager": "pnpm@10.11.1",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.34.0",
+    "@typescript-eslint/parser": "^8.34.0",
+    "eslint": "^9.29.0",
+    "jest": "^30.0.0",
+    "ts-jest": "^29.4.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@nillion/nuc": "0.1.0-rc.8",
+    "@noble/curves": "^1.9.2",
+    "@noble/secp256k1": "^2.3.0",
+    "openai": "^5.3.0",
+    "zod": "^3.25.64"
+  }
+}
