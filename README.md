@@ -1,265 +1,222 @@
-# Nilai OpenAI Client
+# nilAI TypeScript SDK
 
-A TypeScript OpenAI client wrapper that supports NilAuth delegation token authentication.
+A TypeScript SDK for the Nilai platform that provides delegation token management and OpenAI-compatible client functionality for accessing AI models through secure, decentralized infrastructure.
 
-## Installation
+## 🚀 Quick Start
+
+### Installation
+
+This project uses [pnpm](https://pnpm.io/) for dependency management.
 
 ```bash
-npm install @your-org/nilai-openai-client
-# or
-pnpm add @your-org/nilai-openai-client
-# or
-yarn add @your-org/nilai-openai-client
+# Install dependencies
+pnpm install
 ```
 
-## Usage
-
-### API Key Authentication
+### Basic Usage
 
 ```typescript
-import { NilaiOpenAIClient, AuthType, NilAuthInstance } from '@your-org/nilai-openai-client';
+import { NilaiOpenAIClient } from "@nillion/nilai-ts";
+import "dotenv/config";
 
+// Initialize client with API key from environment variables
 const client = new NilaiOpenAIClient({
-  auth_type: AuthType.API_KEY,
-  api_key: 'your-hex-api-key',
-  nilauth_instance: NilAuthInstance.SANDBOX,
-  baseURL: 'https://api.nilai.com/v1',
+  baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+  apiKey: process.env.NILLION_API_KEY,
 });
 
-// Use like a regular OpenAI client
-const completion = await client.chat.completions.create({
-  model: 'gpt-3.5-turbo',
-  messages: [{ role: 'user', content: 'Hello!' }],
+// Make a chat completion request
+const response = await client.chat.completions.create({
+  model: "meta-llama/Llama-3.1-8B-Instruct",
+  messages: [{ role: "user", content: "Hello! Can you help me with something?" }],
 });
+
+console.log(`Response: ${response.choices[0].message.content}`);
 ```
 
-### Delegation Token Authentication
+## 📖 Usage Examples
 
-#### Client Side
+### 1. API Key Mode (Simple)
+
+The easiest way to get started. Your API key is your private key.
 
 ```typescript
-import { NilaiOpenAIClient, AuthType } from '@your-org/nilai-openai-client';
+import { NilaiOpenAIClient } from "@nillion/nilai-ts";
+import "dotenv/config";
 
+// Set up your API key in a .env file or environment variable
 const client = new NilaiOpenAIClient({
-  auth_type: AuthType.DELEGATION_TOKEN,
-  baseURL: 'https://api.nilai.com/v1',
+  baseURL: "https://nilai-a779.nillion.network/nuc/v1/",  
+  apiKey: process.env.NILLION_API_KEY, // Your private key
 });
 
-// Get delegation request
-const delegationRequest = await client.getDelegationRequest();
-console.log('Public key for delegation:', delegationRequest.public_key);
-console.log('Request type:', delegationRequest.type);
-
-// Send this request to your backend server...
-
-// After receiving delegation token from your backend
-client.updateDelegation({
-  type: RequestType.DELEGATION_TOKEN_RESPONSE,
-  delegation_token: 'received-delegation-token'
+// Make requests just like with OpenAI
+const response = await client.chat.completions.create({
+  model: "meta-llama/Llama-3.1-8B-Instruct",
+  messages: [
+    { role: "user", content: "Explain quantum computing in simple terms" },
+  ],
 });
 
-// Now you can use the client
-const completion = await client.chat.completions.create({
-  model: 'gpt-3.5-turbo',
-  messages: [{ role: 'user', content: 'Hello!' }],
-});
+console.log(response.choices[0].message.content);
 ```
 
-#### Server Side (Delegation Token Server)
+### 2. Delegation Token Mode (Advanced)
+
+For more secure, distributed access where you want to separate server credentials from client usage.
 
 ```typescript
-import { 
-  DelegationTokenServer, 
+import {
+  NilaiOpenAIClient,
+  DelegationTokenServer,
+  AuthType,
   NilAuthInstance,
-  RequestType 
-} from '@your-org/nilai-openai-client';
+} from "@nillion/nilai-ts";
+import "dotenv/config";
 
-// Initialize the delegation server with your private key
-const delegationServer = new DelegationTokenServer(
-  'your-server-private-key-hex',
-  {
-    nilauth_url: NilAuthInstance.SANDBOX,
-    expiration_time: 300, // 5 minutes
-    token_max_uses: 10,
-  },
-  NilAuthInstance.SANDBOX
-);
+// Server-side: Create a delegation token server
+const server = new DelegationTokenServer(process.env.NILLION_API_KEY, {
+  nilauthInstance: NilAuthInstance.SANDBOX,
+  expirationTime: 3600, // 1 hour validity
+  tokenMaxUses: 10, // Allow 10 uses
+});
 
-// Handle delegation requests from clients
-app.post('/api/delegate', async (req, res) => {
-  const { public_key } = req.body;
-  
-  const delegationRequest = {
-    type: RequestType.DELEGATION_TOKEN_REQUEST,
-    public_key: public_key
-  };
+// Client-side: Initialize client for delegation token mode
+const client = new NilaiOpenAIClient({
+  baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+  authType: AuthType.DELEGATION_TOKEN,
+});
 
-  try {
-    const delegationResponse = await delegationServer.createDelegationToken(
-      delegationRequest
-    );
-    res.json(delegationResponse);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Step 1: Client requests delegation
+const delegationRequest = client.getDelegationRequest();
+
+// Step 2: Server creates delegation token
+const delegationToken = await server.createDelegationToken(delegationRequest);
+
+// Step 3: Client uses the delegation token
+client.updateDelegation(delegationToken);
+
+// Step 4: Make authenticated requests
+const response = await client.chat.completions.create({
+  model: "meta-llama/Llama-3.1-8B-Instruct",
+  messages: [
+    { role: "user", content: "What are the benefits of decentralized AI?" },
+  ],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+### 3. Environment Configuration
+
+Create a `.env` file for your credentials:
+
+```bash
+# .env file
+NILLION_API_KEY=your-private-key-for-nilai
+```
+
+Then in your code:
+
+```typescript
+import "dotenv/config";
+import { NilaiOpenAIClient } from "@nillion/nilai-ts";
+
+const client = new NilaiOpenAIClient({
+  baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+  apiKey: process.env.NILLION_API_KEY,
 });
 ```
 
-## API Reference
+## ✨ Features
 
-### NilaiOpenAIClient
+- **🔐 Multiple Authentication Methods**: Support for API keys and delegation tokens.
+- **🤖 OpenAI Compatibility**: Drop-in replacement for the OpenAI client.
+- **⚡ Automatic Token Management**: Handles root token caching and expiration automatically.
+- **🛡️ Secure Delegation**: Server-side token management with configurable expiration and usage limits.
+- **🌐 Network Flexibility**: Support for sandbox and production `nilauth` environments.
+- **🔒 Type Safety**: Strongly typed with Zod schema validation for robust development.
 
-Extends the OpenAI client with NilAuth authentication support.
-
-#### Constructor Options
-
-- `auth_type`: `AuthType.API_KEY` or `AuthType.DELEGATION_TOKEN`
-- `api_key`: Required for API key authentication (hex string)
-- `nilauth_instance`: NilAuth instance URL
-- `baseURL`: API base URL
-- All other OpenAI client options are supported
-
-#### Methods
-
-- `getDelegationRequest()`: Returns delegation request with public key and type
-- `updateDelegation(response)`: Updates the client with delegation token
+## 🏗️ Architecture
 
 ### DelegationTokenServer
 
-Server-side class for creating delegation tokens.
+A server-side component responsible for:
 
-#### Constructor
+-   Creating delegation tokens with configurable expiration and usage limits.
+-   Managing the root token lifecycle and caching.
+-   Handling cryptographic operations securely.
 
-```typescript
-new DelegationTokenServer(
-  privateKey: string,
-  config?: DelegationServerConfig,
-  nilAuthInstance?: NilAuthInstance
-)
-```
+### NilaiOpenAIClient
 
-#### Methods
+An OpenAI-compatible client that:
 
-- `createDelegationToken(request, configOverride?)`: Creates a delegation token
+-   Supports both API key and delegation token authentication.
+-   Automatically handles NUC token creation and management.
+-   Provides a familiar chat completion interface.
 
-### Types
+### Token Management
 
-- `AuthType`: Authentication type enum
-- `RequestType`: Request/response type enum
-- `NilAuthInstance`: Predefined NilAuth instance URLs
-- `DelegationTokenRequest`: Structure for delegation requests
-- `DelegationTokenResponse`: Structure for delegation responses
-- `DelegationServerConfig`: Configuration for delegation server
+-   **Root Tokens**: Long-lived tokens for server authentication, managed by `DelegationTokenServer` or `NilaiOpenAIClient` in API Key mode.
+-   **Delegation Tokens**: Short-lived, limited-use tokens for client operations.
+-   **Automatic Refresh**: Expired root tokens are automatically refreshed when needed.
 
-### Default Configuration
+## ✅ Testing
 
-```typescript
-import { DefaultDelegationTokenServerConfig } from '@your-org/nilai-openai-client';
+### Running Tests
 
-// Default values:
-// {
-//   nilauth_url: NilAuthInstance.SANDBOX,
-//   expiration_time: 60,
-//   token_max_uses: 1,
-// }
-```
-
-## Complete Example
-
-### Backend (Express.js)
-
-```typescript
-import express from 'express';
-import { DelegationTokenServer, NilAuthInstance } from '@your-org/nilai-openai-client';
-
-const app = express();
-app.use(express.json());
-
-const delegationServer = new DelegationTokenServer(
-  process.env.SERVER_PRIVATE_KEY!,
-  {
-    expiration_time: 300,
-    token_max_uses: 10,
-  }
-);
-
-app.post('/api/delegate', async (req, res) => {
-  try {
-    const delegationResponse = await delegationServer.createDelegationToken(req.body);
-    res.json(delegationResponse);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.listen(3000);
-```
-
-### Frontend
-
-```typescript
-import { NilaiOpenAIClient, AuthType } from '@your-org/nilai-openai-client';
-
-const client = new NilaiOpenAIClient({
-  auth_type: AuthType.DELEGATION_TOKEN,
-  baseURL: 'https://api.nilai.com/v1',
-});
-
-// Get delegation from your backend
-const delegationRequest = await client.getDelegationRequest();
-const response = await fetch('/api/delegate', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(delegationRequest),
-});
-
-const delegationResponse = await response.json();
-client.updateDelegation(delegationResponse);
-
-// Use the client
-const completion = await client.chat.completions.create({
-  model: 'gpt-3.5-turbo',
-  messages: [{ role: 'user', content: 'Hello!' }],
-});
-```
-
-## Development
+To run all tests:
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Build the project
-pnpm run build
-
-# Run tests
 pnpm test
-
-# Lint
-pnpm run lint
 ```
 
-## License
-
-MIT for delegation requests
-- `DelegationTokenResponse`: Structure for delegation responses
-
-## Development
+To run tests in watch mode:
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Build the project
-pnpm run build
-
-# Run tests
-pnpm test
-
-# Lint
-pnpm run lint
+pnpm test:watch
 ```
 
-## License
+### Test Coverage
 
-MIT
+To run tests with coverage reporting:
+
+```bash
+pnpm test:coverage
+```
+
+## 📦 Development
+
+### Code Quality
+
+This project uses [Biome](https://biomejs.dev/) for linting and formatting.
+
+Run formatting:
+
+```bash
+pnpm fmt
+```
+
+Run linting:
+
+```bash
+pnpm lint
+```
+
+Run all checks:
+
+```bash
+pnpm ci
+```
+
+## 📂 Project Structure
+
+```
+src/
+├── client.ts           # NilaiOpenAIClient class
+├── server.ts           # DelegationTokenServer class
+├── types.ts            # Type definitions and Zod schemas
+├── utils.ts            # Utility functions
+└── internal/
+    └── debug_client.ts # Debug client
+```

@@ -1,0 +1,67 @@
+name: Publish to NPM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Bump version
+        id: version_bump
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          NPM_VERSION=$(npm view $PACKAGE_NAME version 2>/dev/null || echo "0.0.0")
+
+          pnpm add semver
+          IS_CURRENT_GREATER=$(node -e "console.log(require('semver').gt('$CURRENT_VERSION', '$NPM_VERSION'))")
+
+          if [ "$IS_CURRENT_GREATER" = "true" ]; then
+            echo "Version in package.json ($CURRENT_VERSION) is greater than npm version ($NPM_VERSION). No bump needed."
+            echo "new_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Bumping version..."
+            pnpm version prerelease --preid alpha --no-git-tag-version
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            echo "New version: $NEW_VERSION"
+            echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build
+        run: pnpm run build
+      
+      - name: Create a .env file and .env.test file
+        run: |
+            echo "NILLION_API_KEY=${{ secrets.NILLION_API_KEY }}" > .env
+            echo "NILLION_API_KEY=${{ secrets.NILLION_API_KEY }}" > .env.test
+            
+      - name: Test
+        run: pnpm run test
+
+      - name: Publish to NPM
+        run: pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
