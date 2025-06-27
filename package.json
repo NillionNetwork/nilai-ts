@@ -23,7 +23,9 @@
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "ci": "biome check .",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build",
+    "example:api-key": "tsx examples/0-api-key.ts",
+    "example:delegation-token": "tsx examples/1-delegation-token.ts"
   },
   "keywords": [
     "openai",
@@ -52,6 +54,7 @@
     "dotenv": "^16.5.0",
     "eslint": "^9.29.0",
     "tsup": "^8.5.0",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.9"

@@ -61,6 +61,13 @@ const response = await client.chat.completions.create({
 console.log(response.choices[0].message.content);
 ```
 
+
+To execute it:
+```
+pnpm i
+pnpm exec tsx examples/0-api-key.ts
+```
+
 ### 2. Delegation Token Mode (Advanced)
 
 For more secure, distributed access where you want to separate server credentials from client usage.
@@ -105,6 +112,13 @@ const response = await client.chat.completions.create({
 });
 
 console.log(response.choices[0].message.content);
+```
+
+
+To execute it:
+```
+pnpm i
+pnpm exec tsx examples/1-delegation-token.ts
 ```
 
 ### 3. Environment Configuration

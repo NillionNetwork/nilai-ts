@@ -1,5 +1,5 @@
 export { NilaiOpenAIClient } from "./client";
-//export { DelegationTokenServer } from './server';
+export { DelegationTokenServer } from './server';
 export {
   AuthType,
   NilAuthInstance,
