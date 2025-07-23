@@ -1,3 +1,6 @@
+// Import polyfills first to ensure they're available when other modules load
+import './polyfills';
+
 export { NilaiOpenAIClient } from "./client";
 export { DelegationTokenServer } from './server';
 export {

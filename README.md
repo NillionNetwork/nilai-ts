@@ -150,6 +150,7 @@ const client = new NilaiOpenAIClient({
 - **🛡️ Secure Delegation**: Server-side token management with configurable expiration and usage limits.
 - **🌐 Network Flexibility**: Support for sandbox and production `nilauth` environments.
 - **🔒 Type Safety**: Strongly typed with Zod schema validation for robust development.
+- **🔧 Universal Compatibility**: Built-in polyfills for Node.js environments ensure seamless operation across different platforms without manual configuration.
 
 ## 🏗️ Architecture
 
