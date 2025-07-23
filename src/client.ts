@@ -61,6 +61,8 @@ export class NilaiOpenAIClient extends OpenAI {
         break;
       case AuthType.DELEGATION_TOKEN:
         processedOptions.apiKey = "<placeholder>";
+        // Because no real API key is needed, we can allow the browser to use it
+        processedOptions.dangerouslyAllowBrowser = true;
         break;
       default:
         throw new Error(`Invalid auth type: ${authType}`);
