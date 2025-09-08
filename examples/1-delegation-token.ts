@@ -37,7 +37,7 @@ async function main() {
   // The client is responsible for making requests to the Nilai API.
   // We do not provide an API key but we set the auth type to DELEGATION_TOKEN
   const client = new NilaiOpenAIClient({
-    baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+    baseURL: "https://nilai-a779.nillion.network/v1/",
     authType: AuthType.DELEGATION_TOKEN,
     // For production instances, use the following:
     // nilauthInstance: NilAuthInstance.PRODUCTION,

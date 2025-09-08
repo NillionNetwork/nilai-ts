@@ -11,7 +11,7 @@ describe("NilaiOpenAIClient", () => {
 
   beforeEach(() => {
     client = new NilaiOpenAIClient({
-      baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+      baseURL: "https://nilai-a779.nillion.network/v1/",
       apiKey: process.env.NILLION_API_KEY || "",
     });
   });
@@ -176,7 +176,7 @@ describe("authentication modes", () => {
     beforeEach(() => {
       client = new NilaiOpenAIClient({
         authType: AuthType.API_KEY,
-        baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+        baseURL: "https://nilai-a779.nillion.network/v1/",
         apiKey:
           "c2b961027b26c38824bdc2eccf9cdada6646d1b87c665ddf235c33a57335bd47",
       });

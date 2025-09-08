@@ -7,7 +7,7 @@ describe("NilaiOpenAIClient", () => {
   beforeEach(() => {
     client = new NilaiOpenAIClient({
       //baseURL: "http://localhost:8088/v1/",
-      baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+      baseURL: "https://nilai-a779.nillion.network/v1/",
       apiKey: process.env.NILLION_API_KEY || "",
     });
   });

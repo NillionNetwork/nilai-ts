@@ -12,7 +12,7 @@ async function main() {
   // Initialize the client in API key mode
   // For sandbox, use the following:
   const client = new NilaiOpenAIClient({
-    baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+    baseURL: "https://nilai-a779.nillion.network/v1/",
     apiKey: API_KEY,
     nilauthInstance: NilAuthInstance.SANDBOX,
     // For production, use the following:
