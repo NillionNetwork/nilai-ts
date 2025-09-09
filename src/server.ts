@@ -14,7 +14,6 @@ import {
   type DelegationTokenResponse,
   type DelegationServerConfig,
   DefaultDelegationTokenServerConfig,
-  NilAuthInstance,
   RequestType,
 } from "./types";
 
@@ -23,17 +22,14 @@ import { hexToBytes, isExpired } from "./utils";
 export class DelegationTokenServer {
   private config: DelegationServerConfig;
   private nilAuthPrivateKey: Keypair;
-  private nilAuthInstance: NilAuthInstance;
   private _rootTokenEnvelope: NucTokenEnvelope | null = null;
 
   constructor(
     privateKey: string,
     config: DelegationServerConfig = DefaultDelegationTokenServerConfig,
-    nilAuthInstance: NilAuthInstance = NilAuthInstance.SANDBOX,
   ) {
     this.config = config;
     this.nilAuthPrivateKey = Keypair.from(privateKey);
-    this.nilAuthInstance = nilAuthInstance;
   }
 
   /**
@@ -47,7 +43,7 @@ export class DelegationTokenServer {
 
     if (!this._rootTokenEnvelope || isExpired(this._rootTokenEnvelope)) {
       const nilauthClient = await NilauthClient.from(
-        this.nilAuthInstance,
+        this.config.nilauthInstance,
         await new PayerBuilder()
           .chainUrl("https://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz")
           .keypair(this.nilAuthPrivateKey)

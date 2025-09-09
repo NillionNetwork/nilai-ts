@@ -10,7 +10,7 @@ describe("DelegationTokenServer", () => {
   beforeEach(() => {
     client = new NilaiOpenAIClient({
       //  baseURL: "http://localhost:8088/v1/",
-      baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+      baseURL: "https://nilai-a779.nillion.network/v1/",
       authType: AuthType.DELEGATION_TOKEN,
     });
 
@@ -30,7 +30,7 @@ describe("DelegationTokenServer", () => {
         client.updateDelegation(response);
 
         const _completion = await client.chat.completions.create({
-          model: "meta-llama/Llama-3.1-8B-Instruct",
+          model: "google/gemma-3-27b-it",
           messages: [
             { role: "system", content: "Talk like a pirate." },
             { role: "user", content: "Are semicolons optional in JavaScript?" },

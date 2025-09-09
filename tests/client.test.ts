@@ -11,7 +11,7 @@ describe("NilaiOpenAIClient", () => {
 
   beforeEach(() => {
     client = new NilaiOpenAIClient({
-      baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+      baseURL: "https://nilai-a779.nillion.network/v1/",
       apiKey: process.env.NILLION_API_KEY || "",
     });
   });
@@ -20,7 +20,7 @@ describe("NilaiOpenAIClient", () => {
     it("should add authorization header via prepareRequest", async () => {
       try {
         const _completion = await client.chat.completions.create({
-          model: "meta-llama/Llama-3.1-8B-Instruct",
+          model: "google/gemma-3-27b-it",
           messages: [
             { role: "system", content: "Talk like a pirate." },
             { role: "user", content: "Are semicolons optional in JavaScript?" },
@@ -176,9 +176,10 @@ describe("authentication modes", () => {
     beforeEach(() => {
       client = new NilaiOpenAIClient({
         authType: AuthType.API_KEY,
-        baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+        baseURL: "https://nilai-a779.nillion.network/v1/",
         apiKey:
-          "c2b961027b26c38824bdc2eccf9cdada6646d1b87c665ddf235c33a57335bd47",
+          process.env.NILLION_API_KEY ||
+          "Nillion2025", // Use a default key for testing purposes
       });
     });
 
@@ -222,7 +223,7 @@ describe("OpenAI", () => {
     it("should add authorization header via prepareRequest", async () => {
       try {
         const _completion = await client.chat.completions.create({
-          model: "meta-llama/Llama-3.1-8B-Instruct",
+          model: "google/gemma-3-27b-it",
           messages: [
             { role: "system", content: "Talk like a pirate." },
             { role: "user", content: "Are semicolons optional in JavaScript?" },
@@ -251,7 +252,7 @@ describe("newClient", () => {
     it("should add authorization header via prepareRequest", async () => {
       try {
         const _completion = await client.chat.completions.create({
-          model: "meta-llama/Llama-3.1-8B-Instruct",
+          model: "google/gemma-3-27b-it",
           messages: [
             { role: "system", content: "Talk like a pirate." },
             { role: "user", content: "Are semicolons optional in JavaScript?" },

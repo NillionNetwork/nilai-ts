@@ -13,7 +13,7 @@ export type AuthType = z.infer<typeof AuthTypeSchema>;
 
 export const NilAuthInstance = {
   SANDBOX: "https://nilauth.sandbox.app-cluster.sandbox.nilogy.xyz" as const,
-  PRODUCTION: "https://nilauth.nillion.network" as const,
+  PRODUCTION: "https://nilauth-cf7f.nillion.network" as const,
 } as const;
 
 export const NilAuthInstanceSchema = z.nativeEnum(NilAuthInstance);
