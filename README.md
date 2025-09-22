@@ -21,7 +21,7 @@ import "dotenv/config";
 
 // Initialize client with API key from environment variables
 const client = new NilaiOpenAIClient({
-  baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+  baseURL: "https://nilai-a779.nillion.network/v1/",
   apiKey: process.env.NILLION_API_KEY,
 });
 
@@ -46,7 +46,7 @@ import "dotenv/config";
 
 // Set up your API key in a .env file or environment variable
 const client = new NilaiOpenAIClient({
-  baseURL: "https://nilai-a779.nillion.network/nuc/v1/",  
+  baseURL: "https://nilai-a779.nillion.network/v1/",  
   apiKey: process.env.NILLION_API_KEY, // Your private key
 });
 
@@ -90,7 +90,7 @@ const server = new DelegationTokenServer(process.env.NILLION_API_KEY, {
 
 // Client-side: Initialize client for delegation token mode
 const client = new NilaiOpenAIClient({
-  baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+  baseURL: "https://nilai-a779.nillion.network/v1/",
   authType: AuthType.DELEGATION_TOKEN,
 });
 
@@ -137,7 +137,7 @@ import "dotenv/config";
 import { NilaiOpenAIClient } from "@nillion/nilai-ts";
 
 const client = new NilaiOpenAIClient({
-  baseURL: "https://nilai-a779.nillion.network/nuc/v1/",
+  baseURL: "https://nilai-a779.nillion.network/v1/",
   apiKey: process.env.NILLION_API_KEY,
 });
 ```
