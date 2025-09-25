@@ -29,7 +29,10 @@
     "ci": "biome check .",
     "prepublishOnly": "pnpm run build",
     "example:api-key": "tsx examples/0-api-key.ts",
-    "example:delegation-token": "tsx examples/1-delegation-token.ts"
+    "example:delegation-token": "tsx examples/1-delegation-token.ts",
+    "example:nildb-storage": "tsx examples/2-nildb-storage.ts",
+    "example:nildb-prompt-retrieval": "tsx examples/2-nildb-prompt-retrieval.ts",
+    "example:web-search": "tsx examples/3-web-search.ts"
   },
   "keywords": [
     "openai",
@@ -64,10 +67,12 @@
     "vitest": "3.2.4"
   },
   "dependencies": {
-    "@nillion/nuc": "0.1.0-rc.8",
+    "@nillion/nuc": "0.1.1",
+    "@nillion/secretvaults": "^0.1.6",
     "@noble/curves": "^1.9.2",
     "@noble/secp256k1": "^2.3.0",
     "openai": "^5.3.0",
+    "ws": "^8.18.3",
     "zod": "^3.25.64"
   },
   "optionalDependencies": {

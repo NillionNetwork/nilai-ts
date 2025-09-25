@@ -28,11 +28,18 @@ export const RequestTypeSchema = z.nativeEnum(RequestType);
 export type RequestType = z.infer<typeof RequestTypeSchema>;
 
 // Zod object schemas
+export const PromptDocumentInfoSchema = z.object({
+  owner_did: z.string(),
+  doc_id: z.string(),
+});
+
 export const DelegationServerConfigSchema = z.object({
   nilauthInstance: NilAuthInstanceSchema.default(NilAuthInstance.SANDBOX),
   expirationTime: z.number().positive().default(60),
   tokenMaxUses: z.number().positive().default(1),
+  prompt_document: PromptDocumentInfoSchema.optional(),
 });
+
 export type DelegationServerConfig = z.infer<
   typeof DelegationServerConfigSchema
 >;
@@ -96,3 +103,23 @@ export class NilAuthPrivateKeyManager {
     return secp256k1.getPublicKey(this.key);
   }
 }
+
+export const NilDBDelegationSchema = z.object({
+  token: z.string(),
+  did: z.string(),
+});
+
+export type NilDBDelegation = z.infer<typeof NilDBDelegationSchema>;
+
+// Types for DefaultNildb Config
+// Zod object schemas
+export const NilDBConfigSchema = z.object({
+  baseUrls: z.array(z.string().url()).min(1),
+  collection: z.string().min(1),
+});
+export type NilDBConfig = z.infer<typeof NilDBConfigSchema>;
+
+export const DefaultNilDBConfig: NilDBConfig = NilDBConfigSchema.parse({
+  baseUrls: ["https://nildb-stg-n1.nillion.network","https://nildb-stg-n2.nillion.network","https://nildb-stg-n3.nillion.network"],
+  collection: "e035f44e-9fb4-4560-b707-b9325c11207c",
+});

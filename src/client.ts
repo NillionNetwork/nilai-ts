@@ -1,11 +1,12 @@
 import { OpenAI, type ClientOptions } from "openai";
+import { randomUUID } from 'node:crypto';
 import {
   type NucTokenEnvelope,
   NucTokenBuilder,
   NilauthClient,
   PayerBuilder,
   Keypair,
-  Did,
+  Did as DidClass,
   InvocationBody,
   NucTokenEnvelopeSchema,
 } from "@nillion/nuc";
@@ -18,9 +19,13 @@ import {
   type NilaiClientOptions,
   type NilAuthPublicKey,
   RequestType,
+  DefaultNilDBConfig,
+  NilDBDelegation,
 } from "./types";
 
 import { isExpired } from "./utils";
+import { AclDto, CreateOwnedDataRequest, ListDataReferencesResponse, SecretVaultUserClient, Did } from "@nillion/secretvaults";
+import { z } from "zod/v4";
 
 export interface NilaiOpenAIClientOptions
   extends NilaiClientOptions,
@@ -144,6 +149,10 @@ export class NilaiOpenAIClient extends OpenAI {
     return this._rootTokenEnvelope;
   }
 
+  getKeypair(): Keypair | null {
+    return this.nilAuthPrivateKey;
+  }
+
   getDelegationRequest(): DelegationTokenRequest {
     if (!this.nilAuthPrivateKey) {
       throw new Error("NilAuthPrivateKey not set. Call _initializeAuth first.");
@@ -202,7 +211,7 @@ export class NilaiOpenAIClient extends OpenAI {
 
     const invocationToken = NucTokenBuilder.extending(this.delegationToken)
       .body(new InvocationBody({}))
-      .audience(new Did(nilaiPublicKey))
+      .audience(new DidClass(nilaiPublicKey))
       .build(this.nilAuthPrivateKey.privateKey());
     return invocationToken;
   }
@@ -222,7 +231,7 @@ export class NilaiOpenAIClient extends OpenAI {
 
     const invocationToken = NucTokenBuilder.extending(rootToken)
       .body(new InvocationBody({}))
-      .audience(new Did(nilaiPublicKey))
+      .audience(new DidClass(nilaiPublicKey))
       .build(this.nilAuthPrivateKey.privateKey());
 
     return invocationToken;
@@ -251,4 +260,117 @@ export class NilaiOpenAIClient extends OpenAI {
       Authorization: `Bearer ${invocationToken}`,
     };
   }
+
+  async listPrompts(keypair: Keypair) {
+    const client = await SecretVaultUserClient.from({
+      keypair: keypair,
+      baseUrls: DefaultNilDBConfig.baseUrls,
+    })
+
+    const response: ListDataReferencesResponse = await client.listDataReferences()
+
+    return response
+  }
+  async requestNildbDelegationToken(): Promise<NilDBDelegation> {
+    if (!this.nilAuthPrivateKey) {
+      throw new Error("NilAuthPrivateKey not set. Call _initializeAuth first.");
+    }
+
+    const authToken = await this._getInvocationToken();
+    const userDid = new DidClass(this.nilAuthPrivateKey.publicKey()).toString();
+
+    try {
+      const url = new URL(`${this.baseURL}delegation`);
+      url.searchParams.append('prompt_delegation_request', userDid);
+      
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to retrieve the delegation token: ${errorText}`);
+      }
+
+      const jsonResponse = await response.json();
+      return jsonResponse as NilDBDelegation;
+    } catch (error) {
+      throw new Error(`Failed to request NilDB delegation token: ${error}`);
+    }
+  }
+
+  async createPrompt(prompt: string): Promise<string[]> {
+    const client = await SecretVaultUserClient.from({
+      keypair: Keypair.from(this.nilAuthPrivateKey!.privateKey()),
+      baseUrls: DefaultNilDBConfig.baseUrls,
+      blindfold: { operation: 'store' },
+    })
+    // Get delegation from nilAI for the user
+
+    const delegation = await this.requestNildbDelegationToken();
+
+    if (!delegation.token || !delegation.did) {
+      throw new Error("Invalid delegation received");
+    }
+
+    // Validate the delegation token
+    try {
+      NucTokenEnvelopeSchema.parse(delegation.token);
+    } catch (error) {
+      throw new Error(`Invalid delegation token format: ${error}`);
+    }
+
+    // Create ACL to grant access
+    const acl: AclDto = {
+      grantee: Did.parse(delegation.did),
+      read: true,
+      write: false,
+      execute: true,
+    };
+
+    const data = [
+      {
+        _id: randomUUID(),
+        prompt: {
+          key: 'prompt',
+          '%allot': prompt, // encrypted field
+        },
+      },
+    ];
+    // Create the owned data request
+    const createDataRequest: CreateOwnedDataRequest = {
+      collection: DefaultNilDBConfig.collection,
+      owner: client.id as any,
+      data: data,
+      acl: acl,
+    };
+
+    const createResponse = await client.createData(
+      delegation.token, createDataRequest
+    )
+
+    const createdIds = [];
+    for (const [nodeId, nodeResponse] of Object.entries(createResponse)) {
+      if (nodeResponse.data?.created) {
+        createdIds.push(...nodeResponse.data.created);
+      }
+    }
+    console.log("CreateData response:", JSON.stringify(createResponse, null, 2));
+    
+    // If there are errors, log the detailed error bodies
+    if (Array.isArray(createResponse)) {
+      createResponse.forEach((item, index) => {
+        if (item.error) {
+          console.log(`Error ${index + 1} details:`, JSON.stringify(item.error.body, null, 2));
+        }
+      });
+    }
+    
+    return createdIds
+  }
+
 }
