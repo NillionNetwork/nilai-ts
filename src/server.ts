@@ -3,7 +3,7 @@ import {
   NucTokenBuilder,
   NilauthClient,
   Keypair,
-  Did,
+  Did as DidClass,
   Command,
   PayerBuilder,
   DelegationBody,
@@ -75,19 +75,28 @@ export class DelegationTokenServer {
 
     // Calculate expiration time
     const expirationTime = Math.floor(
-      new Date(Date.now() + 10 * 1000).getTime() / 1000,
+      new Date(Date.now() + config.expirationTime * 1000).getTime() / 1000,
     );
 
     const publicKeyBytes = hexToBytes(delegationTokenRequest.public_key);
 
+    let meta: Record<string, unknown> = { usage_limit: config.tokenMaxUses };
+    if (config.prompt_document) {
+      meta = {
+        ...meta,
+        document_id: config.prompt_document.doc_id,
+        document_owner_did: config.prompt_document.owner_did,
+      };
+    }
     const delegatedToken = NucTokenBuilder.extending(rootToken)
       .body(new DelegationBody([]))
       .expiresAt(expirationTime)
-      .audience(new Did(publicKeyBytes))
+      .audience(new DidClass(publicKeyBytes))
       .command(new Command(["nil", "ai", "generate"]))
-      .meta({ usage_limit: config.tokenMaxUses })
+      .meta(meta)
       .build(this.nilAuthPrivateKey.privateKey());
 
+    console.log(`Delegated Token Meta: ${JSON.stringify(meta)}`);
     return {
       type: RequestType.DELEGATION_TOKEN_RESPONSE,
       delegation_token: delegatedToken,
