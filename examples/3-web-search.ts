@@ -20,14 +20,20 @@ async function main() {
   });
 
   // Make a request to the Nilai API
-  const response = await client.chat.completions.create({
-    model: "google/gemma-3-27b-it",
-    messages: [
-      { role: "user", content: "Hello! Can you help me understand the latest news of AI?" }
-    ]
-  }, {
-    extra_body: { web_search: true } // Enable web search
-  } as any);
+  const response = await client.chat.completions.create(
+    {
+      model: "google/gemma-3-27b-it",
+      messages: [
+        {
+          role: "user",
+          content: "Hello! Can you help me understand the latest news of AI?",
+        },
+      ],
+    },
+    {
+      extra_body: { web_search: true }, // Enable web search
+    } as any,
+  );
 
   console.log(`Response: ${response.choices[0].message.content}`);
 }

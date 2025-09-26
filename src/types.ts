@@ -120,6 +120,10 @@ export const NilDBConfigSchema = z.object({
 export type NilDBConfig = z.infer<typeof NilDBConfigSchema>;
 
 export const DefaultNilDBConfig: NilDBConfig = NilDBConfigSchema.parse({
-  baseUrls: ["https://nildb-stg-n1.nillion.network","https://nildb-stg-n2.nillion.network","https://nildb-stg-n3.nillion.network"],
+  baseUrls: [
+    "https://nildb-stg-n1.nillion.network",
+    "https://nildb-stg-n2.nillion.network",
+    "https://nildb-stg-n3.nillion.network",
+  ],
   collection: "e035f44e-9fb4-4560-b707-b9325c11207c",
 });

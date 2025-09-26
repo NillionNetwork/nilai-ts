@@ -23,7 +23,7 @@ async function main() {
   const response = await client.chat.completions.create({
     model: "google/gemma-3-27b-it",
     messages: [
-      { role: "user", content: "Hello! Can you help me with something?" }
+      { role: "user", content: "Hello! Can you help me with something?" },
     ],
   });
 

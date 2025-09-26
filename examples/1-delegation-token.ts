@@ -22,14 +22,11 @@ async function main() {
   // >>> Server initializes a delegation token server
   // The server is responsible for creating delegation tokens
   // and managing their expiration and usage.
-  const server = new DelegationTokenServer(
-    API_KEY,
-    {
-      nilauthInstance: NilAuthInstance.SANDBOX,
-      expirationTime: 10, // 10 seconds validity of delegation tokens
-      tokenMaxUses: 1,    // 1 use of a delegation token
-    },
-  );
+  const server = new DelegationTokenServer(API_KEY, {
+    nilauthInstance: NilAuthInstance.SANDBOX,
+    expirationTime: 10, // 10 seconds validity of delegation tokens
+    tokenMaxUses: 1, // 1 use of a delegation token
+  });
 
   // >>> Client initializes a client
   // The client is responsible for making requests to the Nilai API.
@@ -42,12 +39,12 @@ async function main() {
   });
 
   // >>> Client produces a delegation request
-  const delegationRequest: DelegationTokenRequest = client.getDelegationRequest();
+  const delegationRequest: DelegationTokenRequest =
+    client.getDelegationRequest();
 
   // <<< Server creates a delegation token
-  const delegationToken: DelegationTokenResponse = await server.createDelegationToken(
-    delegationRequest
-  );
+  const delegationToken: DelegationTokenResponse =
+    await server.createDelegationToken(delegationRequest);
 
   // >>> Client sets internally the delegation token
   client.updateDelegation(delegationToken);
@@ -56,7 +53,7 @@ async function main() {
   const response = await client.chat.completions.create({
     model: "google/gemma-3-27b-it",
     messages: [
-      { role: "user", content: "Hello! Can you help me with something?" }
+      { role: "user", content: "Hello! Can you help me with something?" },
     ],
   });
 

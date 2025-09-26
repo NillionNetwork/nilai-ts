@@ -1,6 +1,6 @@
 {
   "name": "@nillion/nilai-ts",
-  "version": "0.0.0-alpha.4",
+  "version": "0.2.0-alpha.0",
   "description": "Nilai Typescript SDK",
   "type": "module",
   "main": "dist/index.js",
@@ -30,7 +30,6 @@
     "prepublishOnly": "pnpm run build",
     "example:api-key": "tsx examples/0-api-key.ts",
     "example:delegation-token": "tsx examples/1-delegation-token.ts",
-    "example:nildb-storage": "tsx examples/2-nildb-storage.ts",
     "example:nildb-prompt-retrieval": "tsx examples/2-nildb-prompt-retrieval.ts",
     "example:web-search": "tsx examples/3-web-search.ts"
   },

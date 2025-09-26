@@ -177,9 +177,7 @@ describe("authentication modes", () => {
       client = new NilaiOpenAIClient({
         authType: AuthType.API_KEY,
         baseURL: "https://nilai-a779.nillion.network/v1/",
-        apiKey:
-          process.env.NILLION_API_KEY ||
-          "Nillion2025", // Use a default key for testing purposes
+        apiKey: process.env.NILLION_API_KEY || "Nillion2025", // Use a default key for testing purposes
       });
     });
 

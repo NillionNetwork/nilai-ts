@@ -1,5 +1,5 @@
 import { OpenAI, type ClientOptions } from "openai";
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from "node:crypto";
 import {
   type NucTokenEnvelope,
   NucTokenBuilder,
@@ -20,12 +20,17 @@ import {
   type NilAuthPublicKey,
   RequestType,
   DefaultNilDBConfig,
-  NilDBDelegation,
+  type NilDBDelegation,
 } from "./types";
 
 import { isExpired } from "./utils";
-import { AclDto, CreateOwnedDataRequest, ListDataReferencesResponse, SecretVaultUserClient, Did } from "@nillion/secretvaults";
-import { z } from "zod/v4";
+import {
+  type AclDto,
+  type CreateOwnedDataRequest,
+  type ListDataReferencesResponse,
+  SecretVaultUserClient,
+  Did,
+} from "@nillion/secretvaults";
 
 export interface NilaiOpenAIClientOptions
   extends NilaiClientOptions,
@@ -265,11 +270,12 @@ export class NilaiOpenAIClient extends OpenAI {
     const client = await SecretVaultUserClient.from({
       keypair: keypair,
       baseUrls: DefaultNilDBConfig.baseUrls,
-    })
+    });
 
-    const response: ListDataReferencesResponse = await client.listDataReferences()
+    const response: ListDataReferencesResponse =
+      await client.listDataReferences();
 
-    return response
+    return response;
   }
   async requestNildbDelegationToken(): Promise<NilDBDelegation> {
     if (!this.nilAuthPrivateKey) {
@@ -281,19 +287,21 @@ export class NilaiOpenAIClient extends OpenAI {
 
     try {
       const url = new URL(`${this.baseURL}delegation`);
-      url.searchParams.append('prompt_delegation_request', userDid);
-      
+      url.searchParams.append("prompt_delegation_request", userDid);
+
       const response = await fetch(url.toString(), {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to retrieve the delegation token: ${errorText}`);
+        throw new Error(
+          `Failed to retrieve the delegation token: ${errorText}`,
+        );
       }
 
       const jsonResponse = await response.json();
@@ -307,8 +315,8 @@ export class NilaiOpenAIClient extends OpenAI {
     const client = await SecretVaultUserClient.from({
       keypair: Keypair.from(this.nilAuthPrivateKey!.privateKey()),
       baseUrls: DefaultNilDBConfig.baseUrls,
-      blindfold: { operation: 'store' },
-    })
+      blindfold: { operation: "store" },
+    });
     // Get delegation from nilAI for the user
 
     const delegation = await this.requestNildbDelegationToken();
@@ -336,8 +344,8 @@ export class NilaiOpenAIClient extends OpenAI {
       {
         _id: randomUUID(),
         prompt: {
-          key: 'prompt',
-          '%allot': prompt, // encrypted field
+          key: "prompt",
+          "%allot": prompt, // encrypted field
         },
       },
     ];
@@ -350,27 +358,33 @@ export class NilaiOpenAIClient extends OpenAI {
     };
 
     const createResponse = await client.createData(
-      delegation.token, createDataRequest
-    )
+      delegation.token,
+      createDataRequest,
+    );
 
     const createdIds = [];
-    for (const [nodeId, nodeResponse] of Object.entries(createResponse)) {
+    for (const [_nodeId, nodeResponse] of Object.entries(createResponse)) {
       if (nodeResponse.data?.created) {
         createdIds.push(...nodeResponse.data.created);
       }
     }
-    console.log("CreateData response:", JSON.stringify(createResponse, null, 2));
-    
+    console.log(
+      "CreateData response:",
+      JSON.stringify(createResponse, null, 2),
+    );
+
     // If there are errors, log the detailed error bodies
     if (Array.isArray(createResponse)) {
       createResponse.forEach((item, index) => {
         if (item.error) {
-          console.log(`Error ${index + 1} details:`, JSON.stringify(item.error.body, null, 2));
+          console.log(
+            `Error ${index + 1} details:`,
+            JSON.stringify(item.error.body, null, 2),
+          );
         }
       });
     }
-    
-    return createdIds
-  }
 
+    return createdIds;
+  }
 }

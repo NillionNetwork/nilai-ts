@@ -1,8 +1,8 @@
 // Import polyfills first to ensure they're available when other modules load
-import './polyfills';
+import "./polyfills";
 
 export { NilaiOpenAIClient } from "./client";
-export { DelegationTokenServer } from './server';
+export { DelegationTokenServer } from "./server";
 export {
   AuthType,
   NilAuthInstance,
