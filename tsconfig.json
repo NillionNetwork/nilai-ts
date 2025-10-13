@@ -6,9 +6,9 @@
 
     // language and module features
     "lib": ["es2022"],
-    "module": "Node16",
+    "module": "es2022",
     "target": "es2022",
-    "moduleResolution": "node16",
+    "moduleResolution": "bundler",
     "moduleDetection": "force",
     "esModuleInterop": true,
     "resolveJsonModule": true,

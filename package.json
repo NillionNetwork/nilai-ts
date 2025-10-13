@@ -2,17 +2,20 @@
   "name": "@nillion/nilai-ts",
   "version": "0.2.0-alpha.1",
   "description": "Nilai Typescript SDK",
-  "type": "commonjs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./polyfills": {
       "types": "./dist/polyfills.d.ts",
-      "require": "./dist/polyfills.js"
+      "import": "./dist/polyfills.js",
+      "require": "./dist/polyfills.cjs"
     },
     "./package.json": "./package.json"
   },

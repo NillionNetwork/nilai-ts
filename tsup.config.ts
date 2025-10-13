@@ -2,7 +2,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: ["src/index.ts", "src/polyfills.ts"],
-  format: ["cjs"],
+  format: ["esm", "cjs"],
   dts: {
     compilerOptions: {
       module: "ESNext",
