@@ -5,13 +5,13 @@ export { NilaiOpenAIClient } from "./client";
 export { DelegationTokenServer } from "./server";
 export {
   AuthType,
-  NilAuthInstance,
-  RequestType,
+  DefaultDelegationTokenServerConfig,
+  type DelegationServerConfig,
   type DelegationTokenRequest,
   type DelegationTokenResponse,
-  type DelegationServerConfig,
-  type NilaiClientOptions,
   type InvocationArgs,
-  DefaultDelegationTokenServerConfig,
+  NilAuthInstance,
+  type NilaiClientOptions,
+  RequestType,
 } from "./types";
-export { isExpired, hexToBytes, bytesToHex } from "./utils";
+export { bytesToHex, hexToBytes, isExpired } from "./utils";

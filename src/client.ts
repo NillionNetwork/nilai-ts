@@ -1,36 +1,34 @@
-import { OpenAI, type ClientOptions } from "openai";
 import { randomUUID } from "node:crypto";
 import {
-  type NucTokenEnvelope,
-  NucTokenBuilder,
-  NilauthClient,
-  PayerBuilder,
-  Keypair,
   Did as DidClass,
   InvocationBody,
+  Keypair,
+  NilauthClient,
+  NucTokenBuilder,
+  type NucTokenEnvelope,
   NucTokenEnvelopeSchema,
+  PayerBuilder,
 } from "@nillion/nuc";
-
-import {
-  AuthType,
-  NilAuthInstance,
-  type DelegationTokenRequest,
-  type DelegationTokenResponse,
-  type NilaiClientOptions,
-  type NilAuthPublicKey,
-  RequestType,
-  DefaultNilDBConfig,
-  type NilDBDelegation,
-} from "./types";
-
-import { isExpired } from "./utils";
 import {
   type AclDto,
   type CreateOwnedDataRequest,
+  Did,
   type ListDataReferencesResponse,
   SecretVaultUserClient,
-  Did,
 } from "@nillion/secretvaults";
+import { type ClientOptions, OpenAI } from "openai";
+import {
+  AuthType,
+  DefaultNilDBConfig,
+  type DelegationTokenRequest,
+  type DelegationTokenResponse,
+  NilAuthInstance,
+  type NilAuthPublicKey,
+  type NilaiClientOptions,
+  type NilDBDelegation,
+  RequestType,
+} from "./types";
+import { isExpired } from "./utils";
 
 export interface NilaiOpenAIClientOptions
   extends NilaiClientOptions,
@@ -90,7 +88,10 @@ export class NilaiOpenAIClient extends OpenAI {
   private _initializeAuth(api_key?: string): void {
     switch (this.authType) {
       case AuthType.API_KEY:
-        this._apiKeyInit(api_key!);
+        if (!api_key) {
+          throw new Error("API key is required for API_KEY auth type");
+        }
+        this._apiKeyInit(api_key);
         break;
       case AuthType.DELEGATION_TOKEN:
         this._delegationTokenInit();
@@ -266,7 +267,7 @@ export class NilaiOpenAIClient extends OpenAI {
     };
   }
 
-  async listPrompts(keypair: Keypair) {
+  async listPrompts(keypair: Keypair): Promise<ListDataReferencesResponse> {
     const client = await SecretVaultUserClient.from({
       keypair: keypair,
       baseUrls: DefaultNilDBConfig.baseUrls,
@@ -312,8 +313,11 @@ export class NilaiOpenAIClient extends OpenAI {
   }
 
   async createPrompt(prompt: string): Promise<string[]> {
+    if (!this.nilAuthPrivateKey) {
+      throw new Error("NilAuthPrivateKey not set. Call _initializeAuth first.");
+    }
     const client = await SecretVaultUserClient.from({
-      keypair: Keypair.from(this.nilAuthPrivateKey!.privateKey()),
+      keypair: Keypair.from(this.nilAuthPrivateKey.privateKey()),
       baseUrls: DefaultNilDBConfig.baseUrls,
       blindfold: { operation: "store" },
     });

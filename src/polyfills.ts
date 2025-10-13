@@ -75,7 +75,7 @@ function ensureGlobals() {
     if (typeof globalThis.crypto === "undefined") {
       try {
         if (typeof require !== "undefined") {
-          const crypto = require("crypto");
+          const crypto = require("node:crypto");
           // Use webcrypto if available (Node.js 16+), otherwise use crypto
           globalThis.crypto = crypto.webcrypto || crypto;
         }
@@ -91,7 +91,7 @@ function ensureGlobals() {
     if (typeof globalThis.TextEncoder === "undefined") {
       try {
         if (typeof require !== "undefined") {
-          const util = require("util");
+          const util = require("node:util");
           globalThis.TextEncoder = util.TextEncoder;
           globalThis.TextDecoder = util.TextDecoder;
         }

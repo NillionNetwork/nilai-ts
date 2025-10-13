@@ -1,6 +1,6 @@
+import dotenv from "dotenv";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
-import dotenv from "dotenv";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env.test" });

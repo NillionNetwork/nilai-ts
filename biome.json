@@ -65,6 +65,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/src/client.ts", "**/src/internal/debug_client.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
     }
   ]
 }

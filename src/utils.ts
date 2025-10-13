@@ -1,5 +1,5 @@
-import type { NucTokenEnvelope, NucToken } from "@nillion/nuc";
 import { createHash } from "node:crypto";
+import type { NucToken, NucTokenEnvelope } from "@nillion/nuc";
 
 /**
  * Check if a token envelope is expired

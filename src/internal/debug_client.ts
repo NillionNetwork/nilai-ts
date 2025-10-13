@@ -1,10 +1,6 @@
 import OpenAI from "openai"; //  [oai_citation:0‡github.com](https://github.com/openai/openai-node?utm_source=chatgpt.com)
 
 export class DebugOpenAI extends OpenAI {
-  constructor(opts?: ConstructorParameters<typeof OpenAI>[0]) {
-    super(opts);
-  }
-
   /**
    * Used as a callback for mutating the given `RequestInit` object.
    *

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { NilaiOpenAIClient, NilAuthInstance } from "@nillion/nilai-ts";
+import { NilAuthInstance, NilaiOpenAIClient } from "@nillion/nilai-ts";
 
 // To obtain an API key, navigate to https://nilpay.vercel.app/
 // and create a new subscription.
@@ -32,7 +32,7 @@ async function main() {
     },
     {
       extra_body: { web_search: true }, // Enable web search
-    } as any,
+    } as Record<string, unknown>,
   );
 
   console.log(`Response: ${response.choices[0].message.content}`);

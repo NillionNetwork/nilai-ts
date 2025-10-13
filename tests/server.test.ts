@@ -1,7 +1,7 @@
-import { describe, it, beforeEach } from "vitest";
+import { beforeEach, describe, it } from "vitest";
+import { DelegationTokenServer } from "#/server";
 import { NilaiOpenAIClient } from "../src/client";
 import { AuthType, NilAuthInstance } from "../src/types";
-import { DelegationTokenServer } from "#/server";
 
 describe("DelegationTokenServer", () => {
   let client: NilaiOpenAIClient;
@@ -38,10 +38,18 @@ describe("DelegationTokenServer", () => {
         });
 
         //console.log(completion);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Full error:", error);
-        if (error.response) {
-          console.error("Error response body:", await error.response.text());
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error
+        ) {
+          const errorWithResponse = error as { response: Response };
+          console.error(
+            "Error response body:",
+            await errorWithResponse.response.text(),
+          );
         }
         throw error;
       }

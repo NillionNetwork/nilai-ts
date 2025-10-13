@@ -1,11 +1,11 @@
 import "dotenv/config";
 import {
-  NilaiOpenAIClient,
-  DelegationTokenServer,
   AuthType,
   type DelegationTokenRequest,
   type DelegationTokenResponse,
+  DelegationTokenServer,
   NilAuthInstance,
+  NilaiOpenAIClient,
 } from "@nillion/nilai-ts";
 
 // To obtain an API key, navigate to https://nilpay.vercel.app/
