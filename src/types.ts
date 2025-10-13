@@ -1,6 +1,6 @@
-import { z } from "zod";
 import { secp256k1 } from "@noble/curves/secp256k1";
 import { bytesToHex, hexToBytes } from "@noble/curves/utils";
+import { z } from "zod";
 
 // Zod enum schemas
 export const AuthType = {

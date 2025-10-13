@@ -1,19 +1,19 @@
 import {
-  type NucTokenEnvelope,
-  NucTokenBuilder,
-  NilauthClient,
-  Keypair,
-  Did as DidClass,
   Command,
-  PayerBuilder,
   DelegationBody,
+  Did as DidClass,
+  Keypair,
+  NilauthClient,
+  NucTokenBuilder,
+  type NucTokenEnvelope,
+  PayerBuilder,
 } from "@nillion/nuc";
 
 import {
+  DefaultDelegationTokenServerConfig,
+  type DelegationServerConfig,
   type DelegationTokenRequest,
   type DelegationTokenResponse,
-  type DelegationServerConfig,
-  DefaultDelegationTokenServerConfig,
   RequestType,
 } from "./types";
 

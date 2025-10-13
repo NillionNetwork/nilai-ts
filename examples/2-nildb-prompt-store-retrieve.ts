@@ -1,11 +1,11 @@
 import "dotenv/config";
 import {
-  NilaiOpenAIClient,
-  DelegationTokenServer,
   AuthType,
   type DelegationTokenRequest,
   type DelegationTokenResponse,
+  DelegationTokenServer,
   NilAuthInstance,
+  NilaiOpenAIClient,
 } from "@nillion/nilai-ts";
 import { Did as DidClass } from "@nillion/nuc";
 
@@ -26,7 +26,11 @@ async function store_to_nildb(prompt: string): Promise<[string, string]> {
 
   const createdIds: string[] = await client.createPrompt(prompt);
   console.log(`Created IDS on nilDB: ${createdIds}`);
-  const ownerDid = new DidClass(client.getKeypair()!.publicKey()).toString();
+  const keypair = client.getKeypair();
+  if (!keypair) {
+    throw new Error("Keypair not available");
+  }
+  const ownerDid = new DidClass(keypair.publicKey()).toString();
   return [createdIds[0], ownerDid];
 }
 

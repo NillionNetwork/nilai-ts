@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { NilaiOpenAIClient, NilAuthInstance } from "@nillion/nilai-ts";
+import { NilAuthInstance, NilaiOpenAIClient } from "@nillion/nilai-ts";
 
 // To obtain an API key, navigate to https://nilpay.vercel.app/
 // and create a new subscription.

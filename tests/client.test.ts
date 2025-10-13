@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { NilaiOpenAIClient } from "../src/client";
+import { Keypair } from "@nillion/nuc";
 import { OpenAI } from "openai";
+import { beforeEach, describe, expect, it } from "vitest";
+import { DelegationTokenServer } from "#/server";
+import { NilaiOpenAIClient } from "../src/client";
 import { DebugOpenAI } from "../src/internal/debug_client";
 import { AuthType, NilAuthInstance, RequestType } from "../src/types";
-import { Keypair } from "@nillion/nuc";
-import { DelegationTokenServer } from "#/server";
 
 describe("NilaiOpenAIClient", () => {
   let client: NilaiOpenAIClient;
@@ -28,10 +28,18 @@ describe("NilaiOpenAIClient", () => {
         });
 
         //console.log(completion);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Full error:", error);
-        if (error.response) {
-          console.error("Error response body:", await error.response.text());
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error
+        ) {
+          const errorWithResponse = error as { response: Response };
+          console.error(
+            "Error response body:",
+            await errorWithResponse.response.text(),
+          );
         }
         throw error;
       }
@@ -162,7 +170,7 @@ describe("error handling", () => {
   it("should throw error for invalid auth type", () => {
     expect(() => {
       new NilaiOpenAIClient({
-        authType: "INVALID_TYPE" as any,
+        authType: "INVALID_TYPE" as AuthType,
         baseURL: "https://test.example.com",
       });
     }).toThrow("Invalid auth type");
