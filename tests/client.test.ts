@@ -1,17 +1,15 @@
 import { Keypair } from "@nillion/nuc";
-import { OpenAI } from "openai";
 import { beforeEach, describe, expect, it } from "vitest";
 import { DelegationTokenServer } from "#/server";
 import { NilaiOpenAIClient } from "../src/client";
-import { DebugOpenAI } from "../src/internal/debug_client";
-import { AuthType, NilAuthInstance, RequestType } from "../src/types";
+import { AuthType, RequestType } from "../src/types";
 
 describe("NilaiOpenAIClient", () => {
   let client: NilaiOpenAIClient;
 
   beforeEach(() => {
     client = new NilaiOpenAIClient({
-      baseURL: "https://nilai-a779.nillion.network/v1/",
+      baseURL: "https://api.nilai.nillion.network/nuc/v1/",
       apiKey: process.env.NILLION_API_KEY || "",
     });
   });
@@ -20,7 +18,7 @@ describe("NilaiOpenAIClient", () => {
     it("should add authorization header via prepareRequest", async () => {
       try {
         const _completion = await client.chat.completions.create({
-          model: "google/gemma-3-27b-it",
+          model: "openai/gpt-oss-20b",
           messages: [
             { role: "system", content: "Talk like a pirate." },
             { role: "user", content: "Are semicolons optional in JavaScript?" },
@@ -141,7 +139,6 @@ describe("updateDelegation", () => {
     const server = new DelegationTokenServer(
       process.env.NILLION_API_KEY || "",
       {
-        nilauthInstance: NilAuthInstance.SANDBOX,
         expirationTime: 60,
         tokenMaxUses: 1,
       },
@@ -184,7 +181,7 @@ describe("authentication modes", () => {
     beforeEach(() => {
       client = new NilaiOpenAIClient({
         authType: AuthType.API_KEY,
-        baseURL: "https://nilai-a779.nillion.network/v1/",
+        baseURL: "https://api.nilai.nillion.network/nuc/v1/",
         apiKey: process.env.NILLION_API_KEY || "Nillion2025", // Use a default key for testing purposes
       });
     });
@@ -215,61 +212,3 @@ describe("authentication modes", () => {
   });
 });
 
-describe("OpenAI", () => {
-  let client: OpenAI;
-
-  beforeEach(() => {
-    client = new OpenAI({
-      baseURL: "https://nilai-a779.nillion.network/v1/",
-      apiKey: "Nillion2025",
-    });
-  });
-
-  describe("e2e test", () => {
-    it("should add authorization header via prepareRequest", async () => {
-      try {
-        const _completion = await client.chat.completions.create({
-          model: "google/gemma-3-27b-it",
-          messages: [
-            { role: "system", content: "Talk like a pirate." },
-            { role: "user", content: "Are semicolons optional in JavaScript?" },
-          ],
-        });
-
-        //console.log(completion);
-      } catch (error) {
-        console.error(error);
-      }
-    });
-  });
-});
-
-describe("newClient", () => {
-  let client: DebugOpenAI;
-
-  beforeEach(() => {
-    client = new DebugOpenAI({
-      baseURL: "https://nilai-a779.nillion.network/v1",
-      apiKey: "Nillion2025",
-    });
-  });
-
-  describe("e2e test", () => {
-    it("should add authorization header via prepareRequest", async () => {
-      try {
-        const _completion = await client.chat.completions.create({
-          model: "google/gemma-3-27b-it",
-          messages: [
-            { role: "system", content: "Talk like a pirate." },
-            { role: "user", content: "Are semicolons optional in JavaScript?" },
-          ],
-        });
-
-        //console.log(completion);
-      } catch (error) {
-        console.error(error);
-        throw error;
-      }
-    });
-  });
-});

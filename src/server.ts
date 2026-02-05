@@ -3,10 +3,9 @@ import {
   DelegationBody,
   Did as DidClass,
   Keypair,
-  NilauthClient,
   NucTokenBuilder,
   type NucTokenEnvelope,
-  PayerBuilder,
+  NucTokenEnvelopeSchema,
 } from "@nillion/nuc";
 
 import {
@@ -42,18 +41,16 @@ export class DelegationTokenServer {
     }
 
     if (!this._rootTokenEnvelope || isExpired(this._rootTokenEnvelope)) {
-      const nilauthClient = await NilauthClient.from(
-        this.config.nilauthInstance,
-        await new PayerBuilder()
-          .chainUrl("https://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz")
-          .keypair(this.nilAuthPrivateKey)
-          .build(),
-      );
-      const rootTokenResponse = await nilauthClient.requestToken(
-        this.nilAuthPrivateKey,
-        "nilai",
-      );
-      this._rootTokenEnvelope = rootTokenResponse.token;
+      const expirationTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour
+      const selfDid = new DidClass(this.nilAuthPrivateKey.publicKey());
+      const rootTokenString = NucTokenBuilder.delegation([])
+        .command(new Command(["nil", "ai", "generate"]))
+        .audience(selfDid)
+        .subject(selfDid)
+        .expiresAt(expirationTime)
+        .build(this.nilAuthPrivateKey.privateKey());
+      this._rootTokenEnvelope =
+        NucTokenEnvelopeSchema.parse(rootTokenString);
     }
 
     return this._rootTokenEnvelope;

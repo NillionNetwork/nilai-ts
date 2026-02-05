@@ -1,7 +1,7 @@
 import { beforeEach, describe, it } from "vitest";
 import { DelegationTokenServer } from "#/server";
 import { NilaiOpenAIClient } from "../src/client";
-import { AuthType, NilAuthInstance } from "../src/types";
+import { AuthType } from "../src/types";
 
 describe("DelegationTokenServer", () => {
   let client: NilaiOpenAIClient;
@@ -10,12 +10,11 @@ describe("DelegationTokenServer", () => {
   beforeEach(() => {
     client = new NilaiOpenAIClient({
       //  baseURL: "http://localhost:8088/v1/",
-      baseURL: "https://nilai-a779.nillion.network/v1/",
+      baseURL: "https://api.nilai.nillion.network/nuc/v1/",
       authType: AuthType.DELEGATION_TOKEN,
     });
 
     server = new DelegationTokenServer(process.env.NILLION_API_KEY || "", {
-      nilauthInstance: NilAuthInstance.SANDBOX,
       expirationTime: 60,
       tokenMaxUses: 1,
     });
@@ -30,7 +29,7 @@ describe("DelegationTokenServer", () => {
         client.updateDelegation(response);
 
         const _completion = await client.chat.completions.create({
-          model: "google/gemma-3-27b-it",
+          model: "openai/gpt-oss-20b",
           messages: [
             { role: "system", content: "Talk like a pirate." },
             { role: "user", content: "Are semicolons optional in JavaScript?" },

@@ -34,7 +34,6 @@ export const PromptDocumentInfoSchema = z.object({
 });
 
 export const DelegationServerConfigSchema = z.object({
-  nilauthInstance: NilAuthInstanceSchema.default(NilAuthInstance.SANDBOX),
   expirationTime: z.number().positive().default(60),
   tokenMaxUses: z.number().positive().default(1),
   prompt_document: PromptDocumentInfoSchema.optional(),
@@ -62,9 +61,6 @@ export type DelegationTokenResponse = z.infer<
 
 export const NilaiClientOptionsSchema = z.object({
   authType: AuthTypeSchema.default(AuthType.DELEGATION_TOKEN).optional(),
-  nilauthInstance: NilAuthInstanceSchema.default(
-    NilAuthInstance.SANDBOX,
-  ).optional(),
 });
 export type NilaiClientOptions = z.infer<typeof NilaiClientOptionsSchema>;
 
@@ -74,7 +70,6 @@ export type InvocationArgs = z.infer<typeof InvocationArgsSchema>;
 // Constants with validation
 export const DefaultDelegationTokenServerConfig: DelegationServerConfig =
   DelegationServerConfigSchema.parse({
-    nilauthInstance: NilAuthInstance.SANDBOX,
     expirationTime: 60,
     tokenMaxUses: 1,
   });

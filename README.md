@@ -21,7 +21,7 @@ import "dotenv/config";
 
 // Initialize client with API key from environment variables
 const client = new NilaiOpenAIClient({
-  baseURL: "https://nilai-a779.nillion.network/v1/",
+  baseURL: "https://api.nilai.nillion.network/nuc/v1/",
   apiKey: process.env.NILLION_API_KEY,
 });
 
@@ -46,7 +46,7 @@ import "dotenv/config";
 
 // Set up your API key in a .env file or environment variable
 const client = new NilaiOpenAIClient({
-  baseURL: "https://nilai-a779.nillion.network/v1/",  
+  baseURL: "https://api.nilai.nillion.network/nuc/v1/",  
   apiKey: process.env.NILLION_API_KEY, // Your private key
 });
 
@@ -77,20 +77,18 @@ import {
   NilaiOpenAIClient,
   DelegationTokenServer,
   AuthType,
-  NilAuthInstance,
 } from "@nillion/nilai-ts";
 import "dotenv/config";
 
 // Server-side: Create a delegation token server
 const server = new DelegationTokenServer(process.env.NILLION_API_KEY, {
-  nilauthInstance: NilAuthInstance.SANDBOX,
   expirationTime: 3600, // 1 hour validity
   tokenMaxUses: 10, // Allow 10 uses
 });
 
 // Client-side: Initialize client for delegation token mode
 const client = new NilaiOpenAIClient({
-  baseURL: "https://nilai-a779.nillion.network/v1/",
+  baseURL: "https://api.nilai.nillion.network/nuc/v1/",
   authType: AuthType.DELEGATION_TOKEN,
 });
 
@@ -137,7 +135,7 @@ import "dotenv/config";
 import { NilaiOpenAIClient } from "@nillion/nilai-ts";
 
 const client = new NilaiOpenAIClient({
-  baseURL: "https://nilai-a779.nillion.network/v1/",
+  baseURL: "https://api.nilai.nillion.network/nuc/v1/",
   apiKey: process.env.NILLION_API_KEY,
 });
 ```
@@ -148,7 +146,7 @@ const client = new NilaiOpenAIClient({
 - **🤖 OpenAI Compatibility**: Drop-in replacement for the OpenAI client.
 - **⚡ Automatic Token Management**: Handles root token caching and expiration automatically.
 - **🛡️ Secure Delegation**: Server-side token management with configurable expiration and usage limits.
-- **🌐 Network Flexibility**: Support for sandbox and production `nilauth` environments.
+- **🌐 Self-Signed NUCs**: Uses self-signed NUC tokens without requiring a remote nilauth service.
 - **🔒 Type Safety**: Strongly typed with Zod schema validation for robust development.
 - **🔧 Universal Compatibility**: Built-in polyfills for Node.js environments ensure seamless operation across different platforms without manual configuration.
 

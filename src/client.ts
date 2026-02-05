@@ -1,13 +1,12 @@
 import { randomUUID } from "node:crypto";
 import {
+  Command,
   Did as DidClass,
   InvocationBody,
   Keypair,
-  NilauthClient,
   NucTokenBuilder,
   type NucTokenEnvelope,
   NucTokenEnvelopeSchema,
-  PayerBuilder,
 } from "@nillion/nuc";
 import {
   type AclDto,
@@ -22,7 +21,6 @@ import {
   DefaultNilDBConfig,
   type DelegationTokenRequest,
   type DelegationTokenResponse,
-  NilAuthInstance,
   type NilAuthPublicKey,
   type NilaiClientOptions,
   type NilDBDelegation,
@@ -34,11 +32,9 @@ export interface NilaiOpenAIClientOptions
   extends NilaiClientOptions,
     ClientOptions {
   authType?: AuthType;
-  nilauthInstance?: NilAuthInstance;
 }
 export class NilaiOpenAIClient extends OpenAI {
   private authType: AuthType = AuthType.API_KEY;
-  private nilAuthInstance: NilAuthInstance = NilAuthInstance.SANDBOX;
   private nilAuthPrivateKey: Keypair | null = null;
   private _rootTokenEnvelope: NucTokenEnvelope | null = null;
   private delegationToken: NucTokenEnvelope | null = null;
@@ -47,17 +43,11 @@ export class NilaiOpenAIClient extends OpenAI {
   constructor(
     options: NilaiOpenAIClientOptions = {
       authType: AuthType.API_KEY,
-      nilauthInstance: NilAuthInstance.SANDBOX,
       apiKey: "",
       baseURL: "",
     },
   ) {
-    const {
-      authType = AuthType.API_KEY,
-      nilauthInstance = NilAuthInstance.SANDBOX,
-      apiKey,
-      ...openAIOptions
-    } = options;
+    const { authType = AuthType.API_KEY, apiKey, ...openAIOptions } = options;
 
     // Set up authentication
     const processedOptions = { apiKey: apiKey, ...openAIOptions };
@@ -80,7 +70,6 @@ export class NilaiOpenAIClient extends OpenAI {
     super(processedOptions);
 
     this.authType = authType;
-    this.nilAuthInstance = nilauthInstance;
 
     this._initializeAuth(apiKey);
   }
@@ -138,18 +127,16 @@ export class NilaiOpenAIClient extends OpenAI {
     }
 
     if (!this._rootTokenEnvelope || isExpired(this._rootTokenEnvelope)) {
-      const nilauthClient = await NilauthClient.from(
-        this.nilAuthInstance,
-        await new PayerBuilder()
-          .chainUrl("https://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz")
-          .keypair(this.nilAuthPrivateKey)
-          .build(),
-      );
-      const rootTokenResponse = await nilauthClient.requestToken(
-        this.nilAuthPrivateKey,
-        "nilai",
-      );
-      this._rootTokenEnvelope = rootTokenResponse.token;
+      const expirationTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour
+      const selfDid = new DidClass(this.nilAuthPrivateKey.publicKey());
+      const rootTokenString = NucTokenBuilder.delegation([])
+        .command(new Command(["nil", "ai", "generate"]))
+        .audience(selfDid)
+        .subject(selfDid)
+        .expiresAt(expirationTime)
+        .build(this.nilAuthPrivateKey.privateKey());
+      this._rootTokenEnvelope =
+        NucTokenEnvelopeSchema.parse(rootTokenString);
     }
 
     return this._rootTokenEnvelope;
