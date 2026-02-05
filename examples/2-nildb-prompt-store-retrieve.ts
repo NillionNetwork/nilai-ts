@@ -4,7 +4,6 @@ import {
   type DelegationTokenRequest,
   type DelegationTokenResponse,
   DelegationTokenServer,
-  NilAuthInstance,
   NilaiOpenAIClient,
 } from "@nillion/nilai-ts";
 import { Did as DidClass } from "@nillion/nuc";
@@ -17,11 +16,9 @@ const API_KEY = process.env.NILLION_API_KEY;
 
 async function store_to_nildb(prompt: string): Promise<[string, string]> {
   // Initialize the client in API key mode
-  // For sandbox, use the following:
   const client = new NilaiOpenAIClient({
-    baseURL: "https://nilai-f910.nillion.network/nuc/v1/",
+    baseURL: "https://api.nilai.nillion.network/nuc/v1/",
     apiKey: API_KEY,
-    nilauthInstance: NilAuthInstance.PRODUCTION,
   });
 
   const createdIds: string[] = await client.createPrompt(prompt);
@@ -46,7 +43,6 @@ async function main() {
   // The server is responsible for creating delegation tokens
   // and managing their expiration and usage.
   const server = new DelegationTokenServer(API_KEY, {
-    nilauthInstance: NilAuthInstance.PRODUCTION,
     expirationTime: 60 * 60, // 3600 seconds = 1 hour validity of delegation tokens
     tokenMaxUses: 10, // 10 uses of a delegation token
     prompt_document: {
@@ -59,10 +55,8 @@ async function main() {
   // The client is responsible for making requests to the Nilai API.
   // We do not provide an API key but we set the auth type to DELEGATION_TOKEN
   const client = new NilaiOpenAIClient({
-    baseURL: "https://nilai-f910.nillion.network/nuc/v1/",
+    baseURL: "https://api.nilai.nillion.network/nuc/v1/",
     authType: AuthType.DELEGATION_TOKEN,
-    // For production instances, use the following:
-    nilauthInstance: NilAuthInstance.PRODUCTION,
   });
   console.log("Requesting delegation token from NilAI Server");
 

@@ -10,7 +10,6 @@ export {
   type DelegationTokenRequest,
   type DelegationTokenResponse,
   type InvocationArgs,
-  NilAuthInstance,
   type NilaiClientOptions,
   RequestType,
 } from "./types";

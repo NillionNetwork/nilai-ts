@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { NilAuthInstance, NilaiOpenAIClient } from "@nillion/nilai-ts";
+import { NilaiOpenAIClient } from "@nillion/nilai-ts";
 
 // To obtain an API key, navigate to https://nilpay.vercel.app/
 // and create a new subscription.
@@ -10,18 +10,14 @@ const API_KEY = process.env.NILLION_API_KEY;
 
 async function main() {
   // Initialize the client in API key mode
-  // For sandbox, use the following:
   const client = new NilaiOpenAIClient({
-    baseURL: "https://nilai-a779.nillion.network/v1/",
+    baseURL: "https://api.nilai.nillion.network/nuc/v1/",
     apiKey: API_KEY,
-    nilauthInstance: NilAuthInstance.SANDBOX,
-    // For production, use the following:
-    // nilauthInstance: NilAuthInstance.PRODUCTION,
   });
 
   // Make a request to the Nilai API
   const response = await client.chat.completions.create({
-    model: "google/gemma-3-27b-it",
+    model: "openai/gpt-oss-20b",
     messages: [
       { role: "user", content: "Hello! Can you help me with something?" },
     ],

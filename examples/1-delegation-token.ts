@@ -4,7 +4,6 @@ import {
   type DelegationTokenRequest,
   type DelegationTokenResponse,
   DelegationTokenServer,
-  NilAuthInstance,
   NilaiOpenAIClient,
 } from "@nillion/nilai-ts";
 
@@ -23,7 +22,6 @@ async function main() {
   // The server is responsible for creating delegation tokens
   // and managing their expiration and usage.
   const server = new DelegationTokenServer(API_KEY, {
-    nilauthInstance: NilAuthInstance.SANDBOX,
     expirationTime: 10, // 10 seconds validity of delegation tokens
     tokenMaxUses: 1, // 1 use of a delegation token
   });
@@ -32,10 +30,8 @@ async function main() {
   // The client is responsible for making requests to the Nilai API.
   // We do not provide an API key but we set the auth type to DELEGATION_TOKEN
   const client = new NilaiOpenAIClient({
-    baseURL: "https://nilai-a779.nillion.network/v1/",
+    baseURL: "https://api.nilai.nillion.network/nuc/v1/",
     authType: AuthType.DELEGATION_TOKEN,
-    // For production instances, use the following:
-    //nilauthInstance: NilAuthInstance.PRODUCTION,
   });
 
   // >>> Client produces a delegation request
@@ -51,7 +47,7 @@ async function main() {
 
   // >>> Client uses the delegation token to make a request
   const response = await client.chat.completions.create({
-    model: "google/gemma-3-27b-it",
+    model: "openai/gpt-oss-20b",
     messages: [
       { role: "user", content: "Hello! Can you help me with something?" },
     ],
