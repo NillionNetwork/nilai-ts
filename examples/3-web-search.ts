@@ -1,9 +1,9 @@
 import "dotenv/config";
 import { NilaiOpenAIClient } from "@nillion/nilai-ts";
 
-// To obtain an API key, navigate to https://nilpay.vercel.app/
-// and create a new subscription.
-// The API key will be displayed in the subscription details.
+// To obtain an API key, navigate to https://nilai.nillion.com/
+// and create a public DID / private API key.
+
 // The NilaiOpenAIClient class automatically handles the NUC token creation and management.
 
 const API_KEY = process.env.NILLION_API_KEY;
