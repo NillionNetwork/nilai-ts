@@ -7,7 +7,7 @@ import {
   NilaiOpenAIClient,
 } from "@nillion/nilai-ts";
 
-// To obtain an API key, navigate to https://nilai.nillion.com/
+// To obtain an API key, navigate to https://developer.nillion.com/
 // and create a public DID / private API key.
 
 const API_KEY = process.env.NILLION_API_KEY;
