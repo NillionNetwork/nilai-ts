@@ -27,7 +27,7 @@ const client = new NilaiOpenAIClient({
 
 // Make a chat completion request
 const response = await client.chat.completions.create({
-  model: "meta-llama/Llama-3.1-8B-Instruct",
+  model: "google/gemma-4-26B-A4B-it",
   messages: [{ role: "user", content: "Hello! Can you help me with something?" }],
 });
 
@@ -38,7 +38,7 @@ console.log(`Response: ${response.choices[0].message.content}`);
 
 ### 1. API Key Mode (Simple)
 
-The easiest way to get started. Your API key is your private key.
+The easiest way to get started. You'll need an API key from the Nillion [Developer Portal](https://developer.nillion.com/).
 
 ```typescript
 import { NilaiOpenAIClient } from "@nillion/nilai-ts";
@@ -52,7 +52,7 @@ const client = new NilaiOpenAIClient({
 
 // Make requests just like with OpenAI
 const response = await client.chat.completions.create({
-  model: "meta-llama/Llama-3.1-8B-Instruct",
+  model: "google/gemma-4-26B-A4B-it",
   messages: [
     { role: "user", content: "Explain quantum computing in simple terms" },
   ],
@@ -103,7 +103,7 @@ client.updateDelegation(delegationToken);
 
 // Step 4: Make authenticated requests
 const response = await client.chat.completions.create({
-  model: "meta-llama/Llama-3.1-8B-Instruct",
+  model: "google/gemma-4-26B-A4B-it",
   messages: [
     { role: "user", content: "What are the benefits of decentralized AI?" },
   ],
