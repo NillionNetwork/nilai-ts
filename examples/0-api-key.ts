@@ -17,7 +17,7 @@ async function main() {
 
   // Make a request to the Nilai API
   const response = await client.chat.completions.create({
-    model: "openai/gpt-oss-20b",
+    model: "google/gemma-4-26B-A4B-it",
     messages: [
       { role: "user", content: "Hello! Can you help me with something?" },
     ],

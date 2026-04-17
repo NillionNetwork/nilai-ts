@@ -29,7 +29,7 @@ describe("DelegationTokenServer", () => {
         client.updateDelegation(response);
 
         const _completion = await client.chat.completions.create({
-          model: "openai/gpt-oss-20b",
+          model: "google/gemma-4-26B-A4B-it",
           messages: [
             { role: "system", content: "Talk like a pirate." },
             { role: "user", content: "Are semicolons optional in JavaScript?" },
